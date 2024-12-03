@@ -9,14 +9,20 @@ export default function RootLayout() {
   const [name, setName] = useState('');
   const [birthday, setBirthday] = useState('');
   const [message, setMessage] = useState('');
-  const [age, setAge] = useState('');
+  
 
   // State to show/hide the card after form submission
   const [submitted, setSubmitted] = useState(false);
 
+  // State for selected background template for the card
+  const [backgroundTemplate, setBackgroundTemplate] = useState('template1'); // Default to template1
+
+  // State for edit mode
+  const [isEditing, setIsEditing] = useState(false);
+
   // Handle form submission
   const handleSubmit = () => {
-    if (!name || !birthday || !message || !age) {
+    if (!name || !birthday || !message ) {
       alert('Please fill in all the fields');
       return;
     }
@@ -31,78 +37,120 @@ export default function RootLayout() {
     });
 
     setSubmitted(true);
+    setIsEditing(false); // After submission, switch to view mode
+  };
+
+  // Background image selector based on the template for the card
+  const getCardBackgroundImage = () => {
+    switch (backgroundTemplate) {
+      case 'template 1':
+        return require("../assets/images/ballon.jpg");
+      case 'template2':
+        return require("../assets/images/blackballons.jpg");
+      case 'template3':
+        return require("../assets/images/flowers.jpg");
+      case 'template4':
+        return require("../assets/images/pinkballons.jpg");
+      default:
+        return require("../assets/images/black.jpg");
+    }
+  };
+
+  // Handle Edit mode
+  const handleEdit = () => {
+    setIsEditing(true);
+    setSubmitted(false); // Hide the card when editing
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ImageBackground
-        source={require("../assets/images/ballon.jpg")}
-        style={styles.backgroundImage}
-        resizeMode="cover"
-      >
-        <ScrollView contentInsetAdjustmentBehavior="automatic">
-          <View style={styles.innerContainer}>
-            <Text style={styles.formTitle}>Birthday Card</Text>
+      <ScrollView contentInsetAdjustmentBehavior="automatic">
+        <View style={styles.innerContainer}>
+          <Text style={styles.formTitle}>Birthday Card</Text>
 
-            {/* Form Inputs */}
-            <Text style={styles.label}>Full Name</Text>
-            <TextInput
-              placeholder="Enter your name"
-              style={styles.input}
-              value={name}
-              onChangeText={setName}
-              placeholderTextColor="black"
-            />
-
-            <Text style={styles.label}>Date of Birthday</Text>
-            <TextInput
-              placeholder="Enter the date here"
-              style={styles.input}
-              value={birthday}
-              onChangeText={setBirthday}
-              placeholderTextColor="black"
-            />
-
-            <Text style={styles.label}>Message to the Celebrated</Text>
-            <TextInput
-              placeholder="Enter what you wish for them"
-              style={styles.input}
-              value={message}
-              onChangeText={setMessage}
-              placeholderTextColor="black"
-            />
-
-            <Text style={styles.label}>Age</Text>
-            <TextInput
-              placeholder="Enter your age"
-              style={styles.input}
-              value={age}
-              onChangeText={setAge}
-              placeholderTextColor="black"
-            />
-
-            <Pressable style={styles.button} onPress={handleSubmit}>
-              <Text style={styles.submitText}>Submit</Text>
+          {/* Background Selection Buttons for the Card */}
+          <View style={styles.templateSelector}>
+            <Pressable onPress={() => setBackgroundTemplate('template1')} style={styles.templateButton}>
+              <Text style={styles.templateButtonText}>Template 1</Text>
             </Pressable>
-
-            <StatusBar backgroundColor="#010709" style="light" />
+            <Pressable onPress={() => setBackgroundTemplate('template2')} style={styles.templateButton}>
+              <Text style={styles.templateButtonText}>Template 2</Text>
+            </Pressable>
+            <Pressable onPress={() => setBackgroundTemplate('template3')} style={styles.templateButton}>
+              <Text style={styles.templateButtonText}>Template 3</Text>
+            </Pressable>
+            <Pressable onPress={() => setBackgroundTemplate('template4')} style={styles.templateButton}>
+              <Text style={styles.templateButtonText}>Template 4</Text>
+            </Pressable>
           </View>
 
-          {/* Conditionally render the card after submission */}
-          {submitted && (
-            <View style={styles.cardContainer}>
-              <View style={styles.card}>
-                <View style={{ position: "relative", alignItems: "center" }}>
-                  <Text style={styles.cardText}>Name: {name}</Text>
-                  <Text style={styles.cardText}>Birthday: {birthday}</Text>
-                  <Text style={styles.cardText}>Age: {age}</Text>
-                  <Text style={styles.cardText}>Message: {message}</Text>
-                </View>
+          {/* If we're in editing mode, show the form to edit the details */}
+          {!submitted || isEditing ? (
+            <>
+              {/* Form Inputs */}
+              <Text style={styles.label}>Full Name</Text>
+              <TextInput
+                placeholder="Enter your name"
+                style={styles.input}
+                value={name}
+                onChangeText={setName}
+                placeholderTextColor="black"
+              />
+
+              <Text style={styles.label}>Date of Birthday</Text>
+              <TextInput
+                placeholder="Enter the date here"
+                style={styles.input}
+                value={birthday}
+                onChangeText={setBirthday}
+                placeholderTextColor="black"
+              />
+
+              <Text style={styles.label}>Message to the Celebrated</Text>
+              <TextInput
+                placeholder="Enter what you wish for them"
+                style={styles.input}
+                value={message}
+                onChangeText={setMessage}
+                placeholderTextColor="black"
+              />
+
+              
+
+              <Pressable style={styles.button} onPress={handleSubmit}>
+                <Text style={styles.submitText}>{isEditing ? 'Save Changes' : 'Submit'}</Text>
+              </Pressable>
+            </>
+          ) : (
+            // If submitted and not in edit mode, show the submitted card with details
+            <>
+              <View style={[styles.cardContainer, { backgroundColor: 'transparent' }]}>
+                <ImageBackground
+                  source={getCardBackgroundImage()}
+                  style={styles.cardBackgroundImage}
+                  resizeMode="cover"
+                >
+                  <View style={styles.card}>
+                    <View style={{ position: "relative", alignItems: "center" }}>
+                      <Text style={styles.cardText}>Name: {name}</Text>
+                      <Text style={styles.cardText}>Birthday: {birthday}</Text>
+                     
+                      <Text style={styles.cardText}>Message: {message}</Text>
+                    </View>
+                  </View>
+                </ImageBackground>
               </View>
-            </View>
+
+              {/* Edit Button to switch to editing mode */}
+              <Pressable style={styles.editButton} onPress={handleEdit}>
+                <Text style={styles.editButtonText}>Edit</Text>
+              </Pressable>
+            </>
           )}
-        </ScrollView>
-      </ImageBackground>
+
+          <StatusBar backgroundColor="#010709" style="light" />
+        </View>
+      </ScrollView>
 
       {/* Toast Container */}
       <Toast ref={(ref) => Toast.setRef(ref)} />  {/* Attach Toast to ref */}
@@ -115,14 +163,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FCFAEE",
   },
-  backgroundImage: {
-    flex: 1,
-    width: null,
-    height: null,
-  },
   innerContainer: {
     flex: 1,
     padding: 20,
+  },
+  templateSelector: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    marginBottom: 20,
+  },
+  templateButton: {
+    padding: 10,
+    backgroundColor: "#D91656",
+    borderRadius: 5,
+  },
+  templateButtonText: {
+    color: "white",
+    fontSize: 16,
   },
   submitText: {
     color: "white",
@@ -165,24 +222,46 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 20,
     borderRadius: 10,
-    backgroundColor: "#F7F7F7",
+    backgroundColor: "#F7F7F7", // default background color if the image is not set
     shadowColor: "#000",
     shadowOffset: {
-      width: 0,
+      width: 3,
       height: 2,
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
   },
+  cardBackgroundImage: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   card: {
     borderRadius: 10,
     elevation: 5,
+    padding: 15,
+    // backgroundColor: 'rgba(255, 255, 255, 0.7)', // semi-transparent background for text visibility
   },
   cardText: {
-    fontSize: 16,
+    fontSize: 26,
     marginTop: 8,
     color: "black",
     fontFamily: "serif",
+    textAlign: "center",
+  },
+  editButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#D91656',
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  editButtonText: {
+    color: 'white',
+    fontSize: 16,
   },
 });
