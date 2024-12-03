@@ -221,13 +221,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
+    height: 500,
     borderRadius: 10,
     backgroundColor: "#F7F7F7", // default background color if the image is not set
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 3,
-      height: 2,
-    },
+    // shadowColor: "#000",
+    // shadowOffset: {
+    //   width: 3,
+    //   height: 2,
+    // },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
@@ -249,8 +250,8 @@ const styles = StyleSheet.create({
   cardText: {
     fontSize: 26,
     marginTop: 8,
-    color: "black",
-    fontFamily: "serif",
+    color: "white",
+    fontFamily: "monospace",
     textAlign: "center",
   },
   editButton: {
